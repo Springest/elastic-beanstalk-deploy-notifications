@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-version="1.0"
+version="1.1"
 
 function usage {
     echo "AWS Elastic Beanstalk Deployment Notifications for New Relic (v${version})"
@@ -71,8 +71,13 @@ fi
 if [[ -f REVISION ]]; then
     app_version=$(cat REVISION)
 else
-    app_version="unknown"
-    error "Unable to extract application version from source REVISION file"
+    EB_CONFIG_SOURCE_BUNDLE=$(/opt/elasticbeanstalk/bin/get-config container -k source_bundle)
+    app_version=$(unzip -z "${EB_CONFIG_SOURCE_BUNDLE}" | tail -n1)
+
+    if [[ -z "${app_version}" ]]; then
+        app_version="unknown"
+        error "Unable to extract application version from source REVISION file, or load version information from within the container"
+    fi
 fi
 
 if [[ ${verbose} == 1 ]]; then
