@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="1.0"
+version="1.2"
 
 function usage {
     echo "AWS Elastic Beanstalk Deployment Notifications for Slack (v${version})"

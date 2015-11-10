@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-version="1.1"
+version="1.2"
 
 function usage {
     echo "AWS Elastic Beanstalk Deployment Notifications for New Relic (v${version})"
