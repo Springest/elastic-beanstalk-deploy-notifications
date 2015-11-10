@@ -5,7 +5,7 @@ version="1.0"
 function usage {
     echo "AWS Elastic Beanstalk Deployment Notifications for Slack (v${version})"
     echo
-    echo "Usage: appsignal_deploy.sh -a <APP NAME> -c <SLACK CHANNEL> -k <API KEY> [options]"
+    echo "Usage: appsignal_deploy.sh -a <APP NAME> -c <SLACK CHANNEL> -w <WEBHOOK URL> [options]"
     echo
     echo "Options:"
     echo
@@ -86,13 +86,17 @@ fi
 if [[ -f REVISION ]]; then
     app_version=$(cat REVISION)
 else
-    app_version="unknown"
-    error "Unable to extract application version from source REVISION
-file"
+    EB_CONFIG_SOURCE_BUNDLE=$(/opt/elasticbeanstalk/bin/get-config container -k source_bundle)
+    app_version=$(unzip -z "${EB_CONFIG_SOURCE_BUNDLE}" | tail -n1)
+
+    if [[ -z "${app_version}" ]]; then
+        app_version="unknown"
+        error "Unable to extract application version from source REVISION file, or load version information from within the container"
+    fi
 fi
 
 if [[ -z "${environment}" ]]; then
-  environment="development"
+  environment=$(/var/app/current/docker/get_eb_environment_name)
 fi
 
 if [[ ${verbose} == 1 ]]; then
